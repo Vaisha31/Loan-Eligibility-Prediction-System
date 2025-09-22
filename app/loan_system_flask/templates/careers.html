@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers - Join Our Team</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #0f1216; color: #e6eef6; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+        .brand { font-weight: 600; font-size: 20px; color: #fff; text-decoration: none; }
+        .nav a { color: #c7d2fe; text-decoration: none; margin-left: 16px; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,.06); }
+
+        .hero { text-align: center; padding: 40px 0 10px; }
+        .hero h1 { font-size: 36px; margin-bottom: 10px; }
+        .hero p { color: #a8b3c6; }
+
+        .section { background: #161a20; border: 1px solid #222833; border-radius: 16px; padding: 28px; margin-top: 24px; }
+        .section h2 { font-size: 28px; margin-bottom: 8px; }
+        .muted { color: #97a6ba; }
+
+        .steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 18px; margin-top: 18px; }
+        .step { text-align: center; padding: 16px; border-radius: 12px; background: #0f1216; border: 1px solid #222833; }
+
+        .jobs { display: grid; gap: 16px; margin-top: 18px; }
+        .job { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 18px; border-radius: 14px; background: #0f1216; border: 1px solid #222833; }
+        .job-title { font-weight: 600; }
+        .tags { margin-top: 8px; }
+        .tag { display: inline-block; font-size: 12px; color: #9fb3c8; background: #131821; border: 1px solid #1f2632; padding: 6px 10px; border-radius: 999px; margin-right: 8px; }
+        .btn { color: #0a0f14; background: linear-gradient(90deg,#49f,#4fd1c5); border: none; padding: 10px 16px; border-radius: 999px; cursor: pointer; }
+
+        .gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-top: 18px; }
+        .card { position: relative; overflow: hidden; border-radius: 14px; border: 1px solid #222833; }
+        .card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+        .card .caption { position: absolute; left: 12px; bottom: 12px; font-size: 12px; color: #d7e0ea; background: rgba(15,18,22,.6); padding: 6px 10px; border-radius: 999px; backdrop-filter: blur(6px); }
+
+        .form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 18px; }
+        .form .field { display: grid; gap: 6px; }
+        .form input, .form select { background: #0f1216; color: #e6eef6; border: 1px solid #222833; border-radius: 10px; padding: 12px; }
+        .form .full { grid-column: span 2 / span 2; }
+        .form .help { font-size: 12px; color: #97a6ba; }
+        .submit { grid-column: span 2 / span 2; background: linear-gradient(90deg,#49f,#4fd1c5); color: #0a0f14; padding: 12px; border-radius: 999px; border: none; cursor: pointer; margin-top: 8px; }
+
+        @media (max-width: 800px) {
+            .steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+            .gallery { grid-template-columns: 1fr; }
+            .form { grid-template-columns: 1fr; }
+            .submit { grid-column: auto; }
+        }
+    </style>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <style>
+        .flash { max-width: 1100px; margin: 10px auto 0; padding: 12px 14px; border-radius: 10px; }
+        .flash.success { background: #15321e; border: 1px solid #235a33; color: #b8f7c7; }
+        .flash.danger { background: #3a171a; border: 1px solid #6a2a30; color: #ffc9cf; }
+        .flash.info { background: #16293a; border: 1px solid #274b6b; color: #cbe7ff; }
+    </style>
+    {% endif %}
+    {% endwith %}
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a class="brand" href="{{ url_for('index') }}">AutoLoan AI</a>
+            <div>
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('careers') }}">Careers</a>
+                {% if session.get('loggedin') %}
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        <div class="hero">
+            <h1>Join Our Team</h1>
+            <p>Be part of a dynamic team building AI-driven financial tools.</p>
+        </div>
+
+        <div class="section">
+            <h2>Simple, Transparent Hiring</h2>
+            <p class="muted">We keep our process respectful and straightforward.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="job-title">Submit Application</div>
+                    <div class="muted">Share your resume and interests</div>
+                </div>
+                <div class="step">
+                    <div class="job-title">Initial Screening</div>
+                    <div class="muted">Quick call with our team</div>
+                </div>
+                <div class="step">
+                    <div class="job-title">Team Interview</div>
+                    <div class="muted">Meet collaborators</div>
+                </div>
+                <div class="step">
+                    <div class="job-title">Final Decision</div>
+                    <div class="muted">We decide fast</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Find Your Perfect Role</h2>
+            <p class="muted">Open roles change frequently—apply if you are a strong fit.</p>
+            <div class="jobs">
+                <div class="job">
+                    <div>
+                        <div class="job-title">UI/UX Designer</div>
+                        <div class="tags">
+                            <span class="tag">Figma</span>
+                            <span class="tag">Prototyping</span>
+                            <span class="tag">User Testing</span>
+                        </div>
+                    </div>
+                    <a class="btn" href="#apply">Apply</a>
+                </div>
+                <div class="job">
+                    <div>
+                        <div class="job-title">Data Scientist</div>
+                        <div class="tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">ML</span>
+                            <span class="tag">Pandas</span>
+                        </div>
+                    </div>
+                    <a class="btn" href="#apply">Apply</a>
+                </div>
+                <div class="job">
+                    <div>
+                        <div class="job-title">Flask Engineer</div>
+                        <div class="tags">
+                            <span class="tag">Flask</span>
+                            <span class="tag">SQL</span>
+                            <span class="tag">APIs</span>
+                        </div>
+                    </div>
+                    <a class="btn" href="#apply">Apply</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Experience Our Culture</h2>
+            <p class="muted">A glimpse at daily moments.</p>
+            <div class="gallery">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&auto=format&fit=crop" alt="Team 1">
+                    <div class="caption">Coffee breaks and casual conversations</div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1200&auto=format&fit=crop" alt="Team 2">
+                    <div class="caption">Collaboration and learning</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="apply" class="section">
+            <h2>Quick Application</h2>
+            <p class="muted">Submit your resume and we'll get back to you soon</p>
+            <form class="form" method="POST" action="{{ url_for('careers_apply') }}" enctype="multipart/form-data">
+                <div class="field">
+                    <label>Full Name *</label>
+                    <input type="text" name="full_name" placeholder="eg: John Doe" required>
+                </div>
+                <div class="field">
+                    <label>Email *</label>
+                    <input type="email" name="email" placeholder="example@gmail.com" required>
+                </div>
+                <div class="field">
+                    <label>Phone Number *</label>
+                    <input type="text" name="phone" placeholder="123 456 7891" required>
+                </div>
+                <div class="field">
+                    <label>Position of Interest *</label>
+                    <input type="text" name="position" placeholder="eg: UI/UX Designer, QA Engineer" required>
+                </div>
+                <div class="field full">
+                    <label>Upload Resume *</label>
+                    <input type="file" name="resume" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                    <div class="help">Allowed formats: PDF, DOC, DOCX, JPG, JPEG, PNG</div>
+                </div>
+                <button type="submit" class="submit">Apply</button>
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Management Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #f5f6fa;
+      }
+
+      .header {
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(1, 37, 134, 0.877);
+        backdrop-filter: blur(10px);
+        color: white;
+      }
+
+      .header h1 {
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin: 0;
+      }
+
+      .container {
+        padding: 2rem;
+        max-width: 1400px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-card h3 {
+        color: #4b5563;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card p {
+        color: #1f2937;
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .filters {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .filters select,
+      .filters input {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+        outline: none;
+      }
+
+      .charts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .chart-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-container h3 {
+        color: #4b5563;
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+
+      .quick-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .action-button {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .action-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+        color: white;
+      }
+      .login-btn {
+        padding: 0.8rem 2rem;
+        background: white;
+        color: #764ba2;
+        border: none;
+        border-radius: 25px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        text-decoration: none;
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <h1>Dashboard</h1>
+      {% if session['loggedin'] %}
+      <a href="{{ url_for('logout') }}" class="login-btn">Logout</a>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="login-btn">Login</a>
+      {% endif %}
+    </header>
+    <div class="container">
+      <div class="quick-actions">
+        <a href="loan_form" class="action-button">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          New Application
+        </a>
+        <a href="review" class="action-button">
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+          Review Applications
+        </a>
+      </div>
+      <br />
+      <br />
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Total Applications</h3>
+          <p>{{ stats.total_applications }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Approved Loans</h3>
+          <p>{{ stats.approved_loans }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Pending Approvals</h3>
+          <p>{{ stats.pending_approvals }}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Declined Loans</h3>
+          <p>{{ stats.declined_loans }}</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <select id="date-range">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+          <option value="custom">Custom Range</option>
+        </select>
+        <input type="date" id="start-date" style="display: none" />
+        <input type="date" id="end-date" style="display: none" />
+        <select id="loan-type">
+          <option value="all">All Loan Types</option>
+          <option value="education">Education</option>
+          <option value="home">Home</option>
+          <option value="business">Business</option>
+        </select>
+      </div>
+
+      <div class="charts">
+        <div class="chart-container">
+          <h3>Loan Status Distribution</h3>
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3>Monthly Loan Approval Trends</h3>
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize Charts
+      document.addEventListener('DOMContentLoaded', function() {
+          const pieCtx = document.getElementById('pieChart').getContext('2d');
+          const lineCtx = document.getElementById('lineChart').getContext('2d');
+
+          // Pie Chart
+          new Chart(pieCtx, {
+              type: 'doughnut',
+              data: {
+                  labels: ['Approved', 'Pending', 'Declined'],
+                  datasets: [{
+                      data: [
+                          {{ stats.approved_loans | default(0) }},
+                          {{ stats.pending_approvals | default(0) }},
+                          {{ stats.declined_loans | default(0) }}
+                      ],
+                      backgroundColor: [
+                          '#4ade80', // Green for Approved
+                          '#fbbf24', // Yellow for Pending
+                          '#f87171'  // Red for Declined
+                      ],
+                      borderWidth: 0
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: {
+                          position: 'bottom'
+                      }
+                  },
+                  cutout: '70%' // Creates a donut-style chart
+              }
+          });
+
+          // Line Chart
+          new Chart(lineCtx, {
+              type: 'line',
+              data: {
+                  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                  datasets: [{
+                      label: 'Approved Loans',
+                      data: [65, 59, 80, 81, 56, 55], // Replace with dynamic data if needed
+                      borderColor: '#6366f1', // Indigo color for the line
+                      tension: 0.4, // Smooth curve
+                      fill: true,
+                      backgroundColor: 'rgba(99, 102, 241, 0.1)' // Light indigo background fill
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: {
+                          position: 'bottom'
+                      }
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true // Y-axis starts at 0
+                      }
+                  }
+              }
+          });
+
+          // Handle date range selector
+          const dateRange = document.getElementById('date-range');
+          const startDate = document.getElementById('start-date');
+          const endDate = document.getElementById('end-date');
+
+          if (dateRange) {
+              dateRange.addEventListener('change', function (e) {
+                  if (e.target.value === 'custom') {
+                      startDate.style.display = 'inline-block';
+                      endDate.style.display = 'inline-block';
+                  } else {
+                      startDate.style.display = 'none';
+                      endDate.style.display = 'none';
+                  }
+              });
+          }
+      });
+    </script>
+  </body>
+</html>

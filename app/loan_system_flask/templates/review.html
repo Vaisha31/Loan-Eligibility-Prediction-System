@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Applications Review</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: #f5f6fa;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+      }
+
+      .filters {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .prediction-card {
+        border-left: 4px solid;
+        transition: transform 0.2s;
+      }
+
+      .prediction-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .prediction-approved {
+        border-left-color: #4ade80;
+      }
+
+      .prediction-rejected {
+        border-left-color: #f87171;
+      }
+
+      .confidence-bar {
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .confidence-level {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+        transition: width 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1 class="h3 mb-0">Loan Applications Review</h1>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="filters">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label">Date Range</label>
+            <select class="form-select" id="dateRange">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Loan Status</label>
+            <select class="form-select" id="loanStatus">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Min CIBIL Score</label>
+            <input
+              type="number"
+              class="form-control"
+              id="minCibil"
+              min="300"
+              max="900"
+            />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Loan Type</label>
+            <select class="form-select" id="loanType">
+              <option value="all">All Types</option>
+              <option value="education">Education</option>
+              <option value="business">Business</option>
+              <option value="home">Home</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <table id="loansTable" class="table table-hover">
+            <thead>
+              <tr>
+                <th>Loan ID</th>
+                <th>Applicant</th>
+                <th>Loan Amount</th>
+                <th>CIBIL Score</th>
+                <th>Status</th>
+                <th>AI Prediction</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for loan in loans %}
+              <tr>
+                <td>{{ loan.loan_id }}</td>
+                <td>{{ loan.name }}</td>
+                <td>LKR {{ loan.loan_amount }}</td>
+                <td>{{ loan.cibil_score }}</td>
+                <td>
+                  <span class="badge bg-{{ loan.status_color }}"
+                    >{{ loan.status }}</span
+                  >
+                </td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-outline-primary predict-btn"
+                    data-loan-id="{{ loan.loan_id }}"
+                  >
+                    Get Prediction
+                  </button>
+                </td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-primary view-details-btn"
+                    data-loan-id="{{ loan.loan_id }}"
+                  >
+                    View Details
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal fade" id="predictionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">AI Loan Prediction</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="card prediction-card" id="predictionResult">
+                    <div class="card-body">
+                      <h6 class="card-subtitle mb-2 text-muted">Prediction</h6>
+                      <h4 class="card-title mb-3" id="predictionStatus"></h4>
+                      <div class="confidence-bar">
+                        <div
+                          class="confidence-level"
+                          id="confidenceLevel"
+                        ></div>
+                      </div>
+                      <small class="text-muted" id="confidenceText"></small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h6 class="card-subtitle mb-2 text-muted">Key Factors</h6>
+                      <div id="keyFactors"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        const table = $("#loansTable").DataTable({
+          pageLength: 10,
+          order: [[0, "desc"]],
+        });
+
+        $("#dateRange, #loanStatus, #minCibil, #loanType").on(
+          "change",
+          function () {
+            table.draw();
+          }
+        );
+
+        $(".predict-btn").on("click", function () {
+          const loanId = $(this).data("loan-id");
+          getPrediction(loanId);
+        });
+
+        $(".view-details-btn").on("click", function () {
+          const loanId = $(this).data("loan-id");
+          window.location.href = `/loan_details/${loanId}`;
+        });
+      });
+
+      function getPrediction(loanId) {
+        fetch(`/get_prediction/${loanId}`)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+
+            displayPrediction(data);
+            $("#predictionModal").modal("show");
+          });
+      }
+
+      function displayPrediction(data) {
+        if (data.error) {
+          alert(`Prediction Error: ${data.error}`);
+          return;
+        }
+
+        const predictionCard = document.getElementById("predictionResult");
+        const statusElement = document.getElementById("predictionStatus");
+        const confidenceLevel = document.getElementById("confidenceLevel");
+        const confidenceText = document.getElementById("confidenceText");
+        const keyFactors = document.getElementById("keyFactors");
+
+        predictionCard.className = `card prediction-card prediction-${data.prediction.toLowerCase()}`;
+        statusElement.textContent = data.prediction;
+
+        confidenceLevel.style.width = `${data.confidence}%`;
+        confidenceText.textContent = `${Math.round(
+          data.confidence
+        )}% confidence`;
+
+        keyFactors.innerHTML = "";
+        Object.entries(data.features_importance)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+          .forEach(([feature, importance]) => {
+            const percent = (importance * 100).toFixed(1);
+            keyFactors.innerHTML += `
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <small>${feature
+                          .replace(/_/g, " ")
+                          .toUpperCase()}</small>
+                        <small>${percent}%</small>
+                    </div>
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+          });
+      }
+    </script>
+  </body>
+</html>
