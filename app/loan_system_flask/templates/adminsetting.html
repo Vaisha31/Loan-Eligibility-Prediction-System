@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .section form {
+            display: flex;
+            flex-direction: column;
+        }
+        .section input, .section select, .section button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .user-list div {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .user-list form {
+            display: inline-block;
+            margin: 0 5px;
+        }
+        .logout {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Settings</h1>
+
+        <!-- Add New User Section -->
+        <div class="section">
+            <h2>Add New User</h2>
+            <form action="/add_user" method="post">
+                <input type="text" name="name" placeholder="Enter User Name" required>
+                <input type="email" name="email" placeholder="Enter User Email" required>
+                <select name="role" required>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Manager</option>
+                    <option value="User">User</option>
+                </select>
+                <button type="submit">Add User</button>
+            </form>
+        </div>
+
+        <!-- Manage Existing Users Section -->
+        <div class="section">
+            <h2>Manage Existing Users</h2>
+            <div class="user-list">
+                {% for user in users %}
+                <div>
+                    <p><strong>{{ user.name }} ({{ user.role }})</strong> - {{ user.email }}</p>
+                    <form action="/update_role/{{ user.name }}" method="post">
+                        <select name="role">
+                            <option value="Admin" {% if user.role == 'Admin' %}selected{% endif %}>Admin</option>
+                            <option value="Manager" {% if user.role == 'Manager' %}selected{% endif %}>Manager</option>
+                            <option value="User" {% if user.role == 'User' %}selected{% endif %}>User</option>
+                        </select>
+                        <button type="submit">Update Role</button>
+                    </form>
+                    <form action="/delete_user/{{ user.name }}">
+                        <button type="submit">Delete User</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <a class="logout" href="/logout">Logout</a>
+    </div>
+</body>
+</html>
